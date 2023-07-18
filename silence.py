@@ -1,39 +1,48 @@
 import subprocess
-from moviepy.editor import AudioFileClip
-from pydub import AudioSegment
+import shlex
+import re
+from moviepy.editor import AudioFileClip, CompositeAudioClip, AudioClip
 
-def fill_silences_with_tone(input_file, tone_duration=1.0):
-    # Run FFmpeg command to detect silence intervals
-    command = f'ffmpeg -i "{input_file}" -af silencedetect=n=-30dB:d=1 -f null - -hide_banner -nostats -v quiet'
-    output = subprocess.check_output(command, shell=True).decode('utf-8')
+def get_silent_interval(duration, start):
+    return AudioClip(make_frame=lambda _: 0, duration=duration).set_start(start)
 
-    # Parse FFmpeg output to extract silence intervals
+#from pydub import AudioSegment
+
+def get_offset_value(line):
+    match = re.search(r'^[^:]*:\s*([\d.]+)', line)
+    if match:
+        return float(match.group(1))
+    else:
+        raise Exception("Was not a decimal value.")
+
+def mute_low_noise(input_file):
+    command = shlex.split(f'ffmpeg -i "{input_file}" -af silencedetect=n=-10dB:d=1 -f null - -hide_banner -nostats')
+    #output = subprocess.check_output(command, stderr=subprocess.PIPE).decode('utf-8')
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    _, output = process.communicate()
+    output = output.decode('utf-8')
+    print("=" * 50)
+    print(output)
+    print("=" * 50)
     silence_intervals = []
     for line in output.split('\n'):
         if 'silence_start' in line:
-            start_time = float(line.split(':')[1])
+            start_time = get_offset_value(line)
         if 'silence_end' in line:
-            end_time = float(line.split(':')[1])
+            end_time = get_offset_value(line)
             silence_intervals.append((start_time, end_time))
-
-    print(f">>>>>> {silence_intervals}")
-
-    # Create MoviePy audio object
+    if not silence_intervals:
+        raise Exception("No silence intervals detected")
     audio = AudioFileClip(input_file)
-
-    # Fill detected silence intervals with a tone
     filled_audio = audio.copy()
     for interval in silence_intervals:
-        start_time = interval[0]
-        end_time = interval[1]
+        start_time, end_time = interval
         duration = end_time - start_time
-
-        tone = AudioSegment.silent(duration=int(duration * 1000))
-        filled_audio = filled_audio.overlay(tone, position=int(start_time * 1000))
-
+        print(f">>>>>] {filled_audio}")
+        silence = AudioClip(make_frame=lambda _: 0, duration=duration)
+        filled_audio = CompositeAudioClip([filled_audio, silence.set_start(start_time)])
     return filled_audio
 
-# Example usage
-input_file = 'commentary.mov'
-filled_audio_clip = fill_silences_with_tone(input_file)
-filled_audio_clip.write_audiofile("silence.mp3")
+if __name__ == "__main__":
+    clip = mute_low_noise("input.mov")
+    clip.write_audiofile("silence.mp3")
