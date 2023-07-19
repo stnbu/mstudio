@@ -36,8 +36,13 @@ def get_offset_value(line):
     else:
         raise Exception("Was not a decimal value.")
 
-def mute_low_noise(input_file):
-    command = shlex.split(f'ffmpeg -i "{input_file}" -af silencedetect=n=-10dB:d=1 -f null - -hide_banner -nostats')
+CONCAT_MUTES = 0
+CONCAT_AUDIO = 1
+
+def mute_low_noise(input_file, preview=None):
+    # -45 -- good, no good sounds cropped
+    # 
+    command = shlex.split(f'ffmpeg -i "{input_file}" -af silencedetect=n=-43dB:d=0.7 -f null - -hide_banner -nostats')
     #output = subprocess.check_output(command, stderr=subprocess.PIPE).decode('utf-8')
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     _, output = process.communicate()
@@ -59,10 +64,14 @@ def mute_low_noise(input_file):
     for interval in silence_intervals:
         start, end = interval
         duration = end - start
-        print(f"new audible clip: [{position}, {start}]", end = "")
-        clips.append(audio.subclip(position, start))
-        print(f" + new mute clip: [{start}, {end}]")
-        clips.append(get_silent_interval(duration))
+
+        if preview == CONCAT_MUTES:
+            clips.append(audio.subclip(start, end))
+        elif preview == CONCAT_AUDIO:
+            clips.append(audio.subclip(position, start))
+        else:
+            clips.append(audio.subclip(position, start))
+            clips.append(get_silent_interval(duration))
         position = end
 
     filled_audio = concatenate_audioclips(clips)
@@ -77,5 +86,5 @@ def mute_low_noise(input_file):
  """        
 
 if __name__ == "__main__":
-    clip = mute_low_noise("input.mov")
+    clip = mute_low_noise("input.mov", preview=CONCAT_MUTES)
     clip.write_audiofile("silence.mp3")
