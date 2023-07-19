@@ -6,7 +6,28 @@ from moviepy.editor import AudioFileClip, CompositeAudioClip, AudioClip
 def get_silent_interval(duration, start):
     return AudioClip(make_frame=lambda _: 0, duration=duration).set_start(start)
 
-#from pydub import AudioSegment
+def get_decimal(line):
+    decimals = []
+    for char in line:
+        if char.isdigit():
+            decimals.append(char)
+        elif char == '.':
+            if len(decimals) > 0:
+                decimals.append(char)
+            else:
+                raise ValueError("String does not contain exactly one decimal value.")
+
+    if len(decimals) == 0:
+        raise ValueError("String does not contain any decimal values.")
+    elif decimals.count('.') > 1:
+        raise ValueError("String does not contain exactly one decimal value.")
+    
+    decimal_str = ''.join(decimals)
+    try:
+        decimal_value = float(decimal_str)
+        return decimal_value
+    except ValueError:
+        raise ValueError("String does not contain a valid decimal value.")
 
 def get_offset_value(line):
     match = re.search(r'^[^:]*:\s*([\d.]+)', line)
@@ -38,11 +59,8 @@ def mute_low_noise(input_file):
     for interval in silence_intervals:
         start_time, end_time = interval
         duration = end_time - start_time
-        print(f">>>>>] {filled_audio}")
-        silence = AudioClip(make_frame=lambda _: 0, duration=duration)
-        filled_audio = CompositeAudioClip([filled_audio, silence.set_start(start_time)])
+        filled_audio = CompositeAudioClip([filled_audio, get_silent_interval(duration, start_time)])
     return filled_audio
-
 if __name__ == "__main__":
     clip = mute_low_noise("input.mov")
     clip.write_audiofile("silence.mp3")
