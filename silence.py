@@ -1,10 +1,10 @@
 import subprocess
 import shlex
 import re
-from moviepy.editor import AudioFileClip, CompositeAudioClip, AudioClip
+from moviepy.editor import AudioFileClip, CompositeAudioClip, AudioClip, concatenate_audioclips
 
-def get_silent_interval(duration, start):
-    return AudioClip(make_frame=lambda _: 0, duration=duration).set_start(start)
+def get_silent_interval(duration):
+    return AudioClip(make_frame=lambda _: 0, duration=duration)
 
 def get_decimal(line):
     decimals = []
@@ -42,9 +42,7 @@ def mute_low_noise(input_file):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     _, output = process.communicate()
     output = output.decode('utf-8')
-    print("=" * 50)
-    print(output)
-    print("=" * 50)
+    print(f"{len(output)} bytes of output")
     silence_intervals = []
     for line in output.split('\n'):
         if 'silence_start' in line:
@@ -56,11 +54,28 @@ def mute_low_noise(input_file):
         raise Exception("No silence intervals detected")
     audio = AudioFileClip(input_file)
     filled_audio = audio.copy()
+    position = 0.0
+    clips = []
     for interval in silence_intervals:
-        start_time, end_time = interval
-        duration = end_time - start_time
-        filled_audio = CompositeAudioClip([filled_audio, get_silent_interval(duration, start_time)])
+        start, end = interval
+        duration = end - start
+        print(f"new audible clip: [{position}, {start}]", end = "")
+        clips.append(audio.subclip(position, start))
+        print(f" + new mute clip: [{start}, {end}]")
+        clips.append(get_silent_interval(duration))
+        position = end
+
+    filled_audio = concatenate_audioclips(clips)
+    filled_audio.fps = audio.fps
     return filled_audio
+"""         x = audio.subclip(position, start_time)
+        y = get_silent_interval(duration)
+        filled_audio = concatenate_audioclips([filled_audio, x, y])
+
+    filled_audio.fps = audio.fps
+    return filled_audio
+ """        
+
 if __name__ == "__main__":
     clip = mute_low_noise("input.mov")
     clip.write_audiofile("silence.mp3")
