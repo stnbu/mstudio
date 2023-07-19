@@ -1,7 +1,7 @@
 import subprocess
 import shlex
 import re
-from moviepy.editor import AudioFileClip, CompositeAudioClip, AudioClip, concatenate_audioclips
+from moviepy.editor import AudioFileClip, AudioClip, concatenate_audioclips
 
 def get_silent_interval(duration):
     return AudioClip(make_frame=lambda _: 0, duration=duration)
@@ -42,8 +42,22 @@ CONCAT_AUDIO = 1
 def mute_low_noise(input_file, preview=None):
     # -45 -- good, no good sounds cropped
     # 
-    command = shlex.split(f'ffmpeg -i "{input_file}" -af silencedetect=n=-43dB:d=0.7 -f null - -hide_banner -nostats')
-    #output = subprocess.check_output(command, stderr=subprocess.PIPE).decode('utf-8')
+    """
+    Note to self about silent detect arguments:
+
+    I believe that `d` is the minimum interval length to remove. If it's "1 second",
+    then 1/2 second on either side of the detected "silent" interval's midpoint are
+    the endpoints for the "silent" interval. Even if the detected "silent" interval
+    is only 0.25 seconds long.
+
+    `n` (with "dB" suffix) is a _negative_ number.
+
+    A MORE negative number -50dB will detect less silence, it has to be "minus this much" before it is counted as silence.
+
+    A LESS negative number -10dB will include 
+    """
+    command = f'ffmpeg -i "{input_file}" -af silencedetect=n=-51dB:d=0.7 -f null - -hide_banner -nostats'
+    command = shlex.split(command)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     _, output = process.communicate()
     output = output.decode('utf-8')
@@ -86,5 +100,7 @@ def mute_low_noise(input_file, preview=None):
  """        
 
 if __name__ == "__main__":
-    clip = mute_low_noise("input.mov", preview=CONCAT_MUTES)
-    clip.write_audiofile("silence.mp3")
+    import sys
+    input, output = sys.argv[1:3]
+    clip = mute_low_noise(input, preview=CONCAT_MUTES)
+    clip.write_audiofile(output)
