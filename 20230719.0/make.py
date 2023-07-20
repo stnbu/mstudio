@@ -1,5 +1,7 @@
 import sys, os, keyword
 from moviepy.editor import *
+from PIL import Image
+import numpy as np
 
 EXTENSIONS = ["mov", "jpg", "mp3", "m4a", "mp4"]
 
@@ -20,6 +22,10 @@ def set_globals_from_media(directory):
             continue
         if not is_python_name(basename):
             raise Exception(f"Not a python name: {basename}")
+        if extension in [".jpg", ".jpeg", ".png"]:
+            clip = image_to_video(path)
+            globals()[basename] = clip
+            continue
         try:
             clip = VideoFileClip(path)
             globals()[basename] = clip
@@ -32,17 +38,22 @@ def set_globals_from_media(directory):
             except IOError:
                 continue
 
+def image_to_video(path, dimensions=(800, 600), duration=0):
+    img = Image.open(path)
+    img.thumbnail(dimensions, Image.LANCZOS)
+    return ImageClip(np.array(img)).set_duration(duration).set_fps(24)
+
 set_globals_from_media("./media")
 
 # New variables magically spawned by above.
-#flowers0 = flowers_20230714.set_duration(10)
+flowers0 = flowers_20230714.set_duration(10)
 walk0 = walk_20230714.subclip(20, 80)
-walk1 = walk_20230716.subclip(5, 15)
-walk2 = walk_20230718.subclip(5, 15)
+walk1 = walk_20230716.subclip(1, 13).rotate(-90)
+walk2 = walk_20230718.subclip(3, 14)
 
 result = concatenate_videoclips([
     walk0, 
-    #flowers0,
+    flowers0,
     walk1,
     walk2
 ])
