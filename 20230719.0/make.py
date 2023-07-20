@@ -32,11 +32,11 @@ def set_globals_from_media(directory):
             except IOError:
                 continue
 
-set_globals_from_media("./")
+set_globals_from_media("./media")
 
 # New variables magically spawned by above.
 #flowers0 = flowers_20230714.set_duration(10)
-walk0 = walk_20230714.subclip(20, 81)
+walk0 = walk_20230714.subclip(20, 80)
 walk1 = walk_20230716.subclip(5, 15)
 walk2 = walk_20230718.subclip(5, 15)
 
