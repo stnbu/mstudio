@@ -1,6 +1,7 @@
-import sys
-import keyword
+import sys, os, keyword
 from moviepy.editor import *
+
+EXTENSIONS = ["mov", "jpg", "mp3", "m4a", "mp4"]
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -9,18 +10,13 @@ def is_python_name(name):
         return False
     return name.isidentifier()
 
-import os
-from moviepy.editor import VideoFileClip, AudioFileClip
-
-EXTENSIONS = ["mov", "jpg", "mp3"]
-
 def set_globals_from_media(directory):
     """This is 'not advised' as it makes code very confusing.
     """
     for name in os.listdir(directory):
         path = os.path.join(directory, name)
         basename, extension = os.path.splitext(name)
-        if extension[1:] not in EXTENSIONS:
+        if extension[1:].lower() not in EXTENSIONS:
             continue
         if not is_python_name(basename):
             raise Exception(f"Not a python name: {basename}")
