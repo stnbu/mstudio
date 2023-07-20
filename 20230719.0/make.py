@@ -35,14 +35,14 @@ def set_globals_from_media(directory):
 set_globals_from_media("./")
 
 # New variables magically spawned by above.
-flowers0 = flowers_20230714.set_duration(10)
-walk0 = walk_20230714.subclip(5, 15)
+#flowers0 = flowers_20230714.set_duration(10)
+walk0 = walk_20230714.subclip(20, 81)
 walk1 = walk_20230716.subclip(5, 15)
 walk2 = walk_20230718.subclip(5, 15)
 
 result = concatenate_videoclips([
     walk0, 
-    flowers0,
+    #flowers0,
     walk1,
     walk2
 ])
