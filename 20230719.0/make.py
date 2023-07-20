@@ -39,3 +39,12 @@ flowers0 = flowers_20230714.set_duration(10)
 walk0 = walk_20230714.subclip(5, 15)
 walk1 = walk_20230716.subclip(5, 15)
 walk2 = walk_20230718.subclip(5, 15)
+
+result = concatenate_videoclips([
+    walk0, 
+    flowers0,
+    walk1,
+    walk2
+])
+
+result.write_videofile("output.mp4", codec='libx264', fps=24)
