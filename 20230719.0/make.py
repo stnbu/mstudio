@@ -70,7 +70,7 @@ def caption(clip, duration=None, text=None):
     if not text:
         return clip
     txt_clip = (TextClip(text, fontsize=70, color='green')
-               .set_pos('center', 'top')
+               .set_pos(('center', -30))
                .set_duration(clip.duration))
     return CompositeVideoClip([clip, txt_clip])
 
