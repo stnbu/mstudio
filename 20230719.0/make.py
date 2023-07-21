@@ -63,21 +63,35 @@ def get_max_scale(resolution, target):
         return target_width / width
     else:
         return target_height / height
+    
+def caption(clip, duration=None, text=None):
+    if not clip.duration:
+        clip = clip.set_duration(duration)
+    if not text:
+        return clip
+    txt_clip = (TextClip(text, fontsize=70, color='green')
+               .set_pos('center', 'top')
+               .set_duration(clip.duration))
+    return CompositeVideoClip([clip, txt_clip])
 
 clips = set_globals_from_media("./media")
 # MAGIC: 🪄
 globals().update(clips)
 
 # New variables magically spawned by above.
-flowers0 = flowers_20230714.set_duration(10).set_fps(24)
-whale0 = walk_20230719_0.set_duration(10).set_fps(24)
 walk0 = walk_20230714.subclip(20, 80)
+flowers0 = flowers_20230714.set_duration(10).set_fps(24)
 walk1 = walk_20230716.subclip(1, 13)
 walk2 = walk_20230718.subclip(3, 14)
 walk3_1 = walk_20230720_1.subclip(2, 26)
-## Save for a special occasion
-#walk3_0 = walk_20230720_0_lilyshits.subclip(3, 15)
 
+walk0 = caption(walk0, text="2023-07-14: We're walking here!")
+flower0 = caption(flowers0, text="2023-07-14: A flower that someone has butchered.")
+whale0 = caption(whale0, text="2023-07-19: A whale that someone has butchered.")
+walk1 = caption(walk1, text="2023-07-16: We're walking here!")
+walk2 = caption(walk2, text="2023-07-18: We're walking here!")
+whale0 = walk_20230719_0.set_duration(10).set_fps(24)
+walk3_1 = caption(walk3_1, text="2023-07-20: We're walking here!")
 
 result = concatenate_videoclips([
     walk0, 
