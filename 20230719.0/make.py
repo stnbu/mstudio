@@ -12,7 +12,7 @@ class ImageFileClip(ImageClip):
     def __init__(self, path):
         img = Image.open(path)
         img.thumbnail(RESOLUTION, Image.LANCZOS)
-        super().__init__(np.array(img))
+        super().__init__(np.array(img)) #.set_duration(10).set_fps(24)
 
 def is_python_name(name):
     if keyword.iskeyword(name):
@@ -93,9 +93,9 @@ print(clips)
 globals().update(clips)
 
 # New variables magically spawned by above.
-#flowers0 = flowers_20230714.set_duration(10)
+flowers0 = flowers_20230714.set_duration(10).set_fps(24) # .set_duration(10)
 walk0 = walk_20230714.subclip(20, 80)
-#walk1 = walk_20230716.subclip(1, 13)
+walk1 = walk_20230716.subclip(1, 13)
 #walk2 = walk_20230718.subclip(3, 14)
 
 #resolution = calculate_max_resolution([walk0])
@@ -112,8 +112,8 @@ walk0 = walk0.resize(newsize=scale)
 
 result = concatenate_videoclips([
     walk0, 
-    #flowers0,
-    #walk1,
+    flowers0,
+    walk1,
     #walk2
 ])
 
