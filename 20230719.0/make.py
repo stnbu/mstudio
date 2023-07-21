@@ -70,15 +70,22 @@ globals().update(clips)
 
 # New variables magically spawned by above.
 flowers0 = flowers_20230714.set_duration(10).set_fps(24)
+whale0 = walk_20230719_0.set_duration(10).set_fps(24)
 walk0 = walk_20230714.subclip(20, 80)
 walk1 = walk_20230716.subclip(1, 13)
 walk2 = walk_20230718.subclip(3, 14)
+walk3_1 = walk_20230720_1.subclip(2, 26)
+## Save for a special occasion
+#walk3_0 = walk_20230720_0_lilyshits.subclip(3, 15)
+
 
 result = concatenate_videoclips([
     walk0, 
     flowers0,
     walk1,
-    walk2
+    walk2,
+    whale0,
+    walk3_1,
 ])
 
 result.write_videofile("output.mp4", codec='libx264', fps=24)
