@@ -84,6 +84,9 @@ walk0 = walk_20230714.subclip(20, 80)
 #walk1 = walk_20230716.subclip(1, 13)
 #walk2 = walk_20230718.subclip(3, 14)
 
+resolution = calculate_max_resolution([walk0])
+print(f">>>> {resolution}")
+
 result = concatenate_videoclips([
     walk0, 
     #flowers0,
