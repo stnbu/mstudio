@@ -4,8 +4,15 @@ from PIL import Image
 import numpy as np
 
 EXTENSIONS = ["mov", "jpg", "mp3", "m4a", "mp4"]
+RESOLUTION = (1920, 1080)
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+class ImageFileClip(ImageClip):
+    def __init__(self, path):
+        img = Image.open(path)
+        img.thumbnail(RESOLUTION, Image.LANCZOS)
+        super().__init__(np.array(img))
 
 def is_python_name(name):
     if keyword.iskeyword(name):
@@ -30,7 +37,7 @@ def set_globals_from_media(directory):
         #    raise Exception(f"Not a python name: {basename}")
         print(f"{extension} vs {VIDEO_FILE_EXTENSIONS}")
         if extension in IMAGE_FILE_EXTENSIONS:
-            values[basename] = ImageClip(path)
+            values[basename] = ImageFileClip(path)
         elif extension in VIDEO_FILE_EXTENSIONS:
             values[basename] = VideoFileClip(path)
         elif extension in AUDIO_FILE_EXTENSIONS:
@@ -73,6 +80,13 @@ def calculate_max_resolution(clips):
 # clips = [VideoFileClip("some_video.mp4"), ImageClip("some_image.jpg")]
 # print(calculate_max_resolution(clips))
 
+def get_max_scale(resolution, target):
+    width, height = resolution
+    target_width, target_height = target
+    if target_width - width < target_height - height:
+        return target_width / width
+    else:
+        return target_height / height
 
 clips = set_globals_from_media("./media")
 print(clips)
@@ -84,8 +98,17 @@ walk0 = walk_20230714.subclip(20, 80)
 #walk1 = walk_20230716.subclip(1, 13)
 #walk2 = walk_20230718.subclip(3, 14)
 
-resolution = calculate_max_resolution([walk0])
-print(f">>>> {resolution}")
+#resolution = calculate_max_resolution([walk0])
+""" print(f">>>>res {resolution}")
+scale = get_max_scale(walk0.size, walk0.size)
+print(f">>>>scl {scale}")
+walk0 = walk0.resize(newsize=scale)
+ """
+"""
+-    img = Image.open(path)
+-    img.thumbnail(dimensions, Image.LANCZOS)
+-    return ImageClip(np.array(img)).set_duration(duration).set_fps(24)
+"""                    
 
 result = concatenate_videoclips([
     walk0, 
