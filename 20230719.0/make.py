@@ -12,50 +12,83 @@ def is_python_name(name):
         return False
     return name.isidentifier()
 
+IMAGE_FILE_EXTENSIONS = ["png", "jpg"]
+AUDIO_FILE_EXTENSIONS = ["mp3", "wav"]
+VIDEO_FILE_EXTENSIONS = ["mov", "m4a"]
+
+
 def set_globals_from_media(directory):
     """This is 'not advised' as it makes code very confusing.
     """
+    print(">>>>>> hi")
+    values = {}
     for name in os.listdir(directory):
         path = os.path.join(directory, name)
         basename, extension = os.path.splitext(name)
-        if extension[1:].lower() not in EXTENSIONS:
-            continue
-        if not is_python_name(basename):
-            raise Exception(f"Not a python name: {basename}")
-        if extension in [".jpg", ".jpeg", ".png"]:
-            clip = image_to_video(path)
-            globals()[basename] = clip
-            continue
-        try:
-            clip = VideoFileClip(path)
-            globals()[basename] = clip
-            print(f"adding to globals: {basename} = VideoClipFile(\"{name}\")")
-        except IOError:
-            try:
-                clip = AudioFileClip(path)
-                globals()[basename] = clip
-                print(f"adding to globals: {basename} = AudioClipFile(\"{name}\")")
-            except IOError:
-                continue
+        extension = extension[1:]
+        #if not is_python_name(basename):
+        #    raise Exception(f"Not a python name: {basename}")
+        print(f"{extension} vs {VIDEO_FILE_EXTENSIONS}")
+        if extension in IMAGE_FILE_EXTENSIONS:
+            values[basename] = ImageClip(path)
+        elif extension in VIDEO_FILE_EXTENSIONS:
+            values[basename] = VideoFileClip(path)
+        elif extension in AUDIO_FILE_EXTENSIONS:
+            values[basename] = AudioFileClip(path)
+        else:
+            continue  # not supported
+    return values
 
-def image_to_video(path, dimensions=(800, 600), duration=0):
-    img = Image.open(path)
-    img.thumbnail(dimensions, Image.LANCZOS)
-    return ImageClip(np.array(img)).set_duration(duration).set_fps(24)
+def center_clip(clip, resolution):
+    target_width, target_height = resolution
+    clip_width, clip_height = clip.size
+    pos_x = (target_width - clip_width) // 2
+    pos_y = (target_height - clip_height) // 2
+    centered = CompositeVideoClip([
+        ColorClip(size=resolution, color=(0, 0, 0)).set_duration(clip.duration),
+        clip.set_position((pos_x, pos_y))
+    ])    
+    return centered
 
-set_globals_from_media("./media")
+"""
+# Example Usage
+original = VideoFileClip("some_video.mp4")
+slide = ImageClip("some_image.jpg").set_duration(5)
+resolution = (800, 600)
+
+centered_slide = center_clip(slide, resolution)
+new_clip = concatenate_videoclips([original, centered_slide])
+"""
+
+def calculate_max_resolution(clips):
+    if not clips:
+        raise Exception("One or more clips required")
+    resolutions = [clip.size for clip in clips]
+    max_width = max(res[0] for res in resolutions)
+    max_height = max(res[1] for res in resolutions)
+    return (max_width, max_height)
+
+# Example Usage
+# Assuming you have some clips created using moviepy
+# clips = [VideoFileClip("some_video.mp4"), ImageClip("some_image.jpg")]
+# print(calculate_max_resolution(clips))
+
+
+clips = set_globals_from_media("./media")
+print(clips)
+globals().update(clips)
 
 # New variables magically spawned by above.
-flowers0 = flowers_20230714.set_duration(10)
+#flowers0 = flowers_20230714.set_duration(10)
 walk0 = walk_20230714.subclip(20, 80)
-walk1 = walk_20230716.subclip(1, 13).rotate(-90)
-walk2 = walk_20230718.subclip(3, 14)
+#walk1 = walk_20230716.subclip(1, 13)
+#walk2 = walk_20230718.subclip(3, 14)
 
 result = concatenate_videoclips([
     walk0, 
-    flowers0,
-    walk1,
-    walk2
+    #flowers0,
+    #walk1,
+    #walk2
 ])
 
 result.write_videofile("output.mp4", codec='libx264', fps=24)
