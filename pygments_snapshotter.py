@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
-
-import sys, io
+import sys
+import io
+import os
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import ImageFormatter
@@ -10,22 +10,39 @@ def generate_images_from_code(file_path, columns):
     with open(file_path, 'r') as f:
         code = f.read()
 
-    # Syntax highlight the code and get it as an image
-    highlighted_code = highlight(code, PythonLexer(), ImageFormatter(line_numbers=False))
+    # Syntax highlight each line and save them as separate images
+    lines = code.split('\n')
+    line_images = []
+    for line in lines:
+        line_code = highlight(line, PythonLexer(), ImageFormatter(line_numbers=False))
+        line_img = Image.open(io.BytesIO(line_code))
+        line_images.append(line_img)
 
-    # Convert highlighted code to an Image object
-    img = Image.open(io.BytesIO(highlighted_code))
-    
-    # Determine the width of the image corresponding to the desired number of columns
-    char_width = img.width // len(code.split('\n')[0])
-    desired_width = char_width * columns
+    # Calculate required height based on 56.25 lines
+    target_height = int(56.25 * line_images[0].height)
+
+    # Concatenate the images vertically
+    idx = 0
+    stacked_images = []
+    while line_images:
+        concatenated_img = Image.new('RGB', (line_images[0].width, 0))
+        current_height = 0
+        
+        while current_height < target_height and line_images:
+            current_img = line_images.pop(0)
+            concatenated_img.paste(current_img, (0, current_height))
+            current_height += current_img.height
+
+        stacked_images.append(concatenated_img)
 
     # Crop and save the images
-    idx = 0
-    top = 0
-    bottom = img.height * desired_width // img.width
-    while top < img.height:
-        cropped_img = img.crop((0, top, desired_width, bottom))
+    if not os.path.exists('./screenshots'):
+        os.makedirs('./screenshots')
+
+    for idx, img in enumerate(stacked_images):
+        # Crop the image to the desired width based on columns
+        desired_width = columns * (img.width // min(len(line) for line in lines if line))
+        cropped_img = img.crop((0, 0, desired_width, target_height))
         
         # Resize cropped image to 1920x1080
         resized_img = cropped_img.resize((1920, 1080))
@@ -34,10 +51,6 @@ def generate_images_from_code(file_path, columns):
         output_path = f"./screenshots/{file_path.split('/')[-1]}_{idx}.png"
         resized_img.save(output_path)
         print(f"Saved: {output_path}")
-        
-        idx += 1
-        top = bottom
-        bottom = bottom + (img.height * desired_width // img.width)
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
