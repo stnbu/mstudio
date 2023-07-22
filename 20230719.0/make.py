@@ -79,6 +79,69 @@ def caption(clip, duration=None, text=None):
     # this part broke: .fx(vfx.colorx, sine_opacity))
     return CompositeVideoClip([clip, txt_clip])
 
+def subdivide(clip):
+    width, height = clip.size
+    new_width = width // 2
+    new_height = height // 2
+    clips = [
+        clip.subclip(x * new_width, (x + 1) * new_width, y * new_height, (y + 1) * new_height)
+        for y in range(2)
+        for x in range(2)
+    ]
+    for sub_clip in clips:
+        sub_clip = sub_clip.set_duration(10)
+    return clips
+
+def random_concatenation(clips):
+    np.random.seed(0)
+    random_order = np.random.permutation(clips)
+    final_clip = concatenate_videoclips(random_order, method="compose")
+    return final_clip
+
+WPS = 3.2
+START = 1.5
+PADDING = 0.5
+
+def parse_paragraphs(text):
+    paragraphs = text.split("\n\n")
+    subtitles = []
+    instructions = {}
+    for p in paragraphs:
+        lines = p.split("\n")
+        if lines[0].startswith("#"):
+            instruction, value = lines[0][1:].split("=", 1)
+            instructions[instruction.strip()] = float(value)
+            subtitle_text = "\n".join(lines[1:])
+        else:
+            subtitle_text = p
+        subtitles.append((subtitle_text, instructions))
+        instructions = {}
+    return subtitles
+
+def generate_srt_from_text(text):
+    paragraphs = parse_paragraphs(text)
+    current_time = START
+    srt_subs = pysrt.SubRipFile()
+    for p, instr in paragraphs:
+        if "sub_start_time" in instr:
+            current_time = instr["sub_start_time"]
+        duration = len(p.split()) * WPS
+        sub = pysrt.SubRipItem(
+            start=current_time,
+            end=current_time + duration,
+            text=p
+        )
+        srt_subs.append(sub)
+        current_time = sub.end.to_time() + PADDING
+    return srt_subs
+
+def dub(clip, text):
+    srt_subs = generate_srt_from_text(text)
+    def sub_gen(txt):
+        return TextClip(txt, fontsize=24, color='white')
+    subtitles = CompositeVideoClip([clip] + [sub_gen(sub.text).set_pos(('center', 'bottom')).set_start(sub.start.to_time()).set_duration((sub.end - sub.start).to_time()) for sub in srt_subs])
+    return subtitles
+
 clips = set_globals_from_media("./media")
 # MAGIC: 🪄
 globals().update(clips)
