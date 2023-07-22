@@ -6,4 +6,5 @@
 *.wav
 *.mov
 
-/screenshots/projects
+/screenshots
+/projects
