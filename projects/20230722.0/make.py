@@ -2,6 +2,7 @@ import sys, os, keyword
 from moviepy.editor import *
 from PIL import Image
 import numpy as np
+import pysrt
 
 RESOLUTION = (1920, 1080)
 IMAGE_FILE_EXTENSIONS = ["png", "jpg"]
@@ -9,12 +10,6 @@ AUDIO_FILE_EXTENSIONS = ["mp3", "wav"]
 VIDEO_FILE_EXTENSIONS = ["mov", "m4a"]
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-class ImageFileClip(ImageClip):
-    def __init__(self, path):
-        img = Image.open(path)
-        img.thumbnail(RESOLUTION, Image.LANCZOS)
-        super().__init__(np.array(img)) #.set_duration(10).set_fps(24)
 
 def is_python_name(name):
     if keyword.iskeyword(name):
@@ -28,7 +23,7 @@ def set_globals_from_media(directory):
         basename, extension = os.path.splitext(name)
         extension = extension[1:]
         if extension in IMAGE_FILE_EXTENSIONS:
-            values[basename] = ImageFileClip(path)
+            values[basename] = ImageClip(path)
         elif extension in VIDEO_FILE_EXTENSIONS:
             values[basename] = VideoFileClip(path)
         elif extension in AUDIO_FILE_EXTENSIONS:
@@ -98,7 +93,7 @@ def random_concatenation(clips):
     final_clip = concatenate_videoclips(random_order, method="compose")
     return final_clip
 
-WPS = 3.2
+WPS = 2.3
 START = 1.5
 PADDING = 0.5
 
@@ -125,21 +120,25 @@ def generate_srt_from_text(text):
     for p, instr in paragraphs:
         if "sub_start_time" in instr:
             current_time = instr["sub_start_time"]
-        duration = len(p.split()) * WPS
+        duration = len(p.split()) / WPS
         sub = pysrt.SubRipItem(
-            start=current_time,
-            end=current_time + duration,
+            start=int(current_time * 1000),
+            end=int((current_time + duration) * 1000),
             text=p
         )
         srt_subs.append(sub)
-        current_time = sub.end.to_time() + PADDING
+        current_time = current_time + duration + PADDING
     return srt_subs
 
 def dub(clip, text):
     srt_subs = generate_srt_from_text(text)
     def sub_gen(txt):
         return TextClip(txt, fontsize=24, color='white')
-    subtitles = CompositeVideoClip([clip] + [sub_gen(sub.text).set_pos(('center', 'bottom')).set_start(sub.start.to_time()).set_duration((sub.end - sub.start).to_time()) for sub in srt_subs])
+    subtitles = CompositeVideoClip(
+        [clip] + [sub_gen(sub.text)
+                  .set_pos(('center', 'bottom'))
+                  .set_start(sub.start.ordinal)
+                  .set_duration((sub.end - sub.start).ordinal) for sub in srt_subs])
     return subtitles
 
 clips = set_globals_from_media("./media")
@@ -170,4 +169,17 @@ result = concatenate_videoclips([
     walk3_1,
 ])
 
-result.write_videofile("output.mp4", codec='libx264', fps=24)
+# Output not used for now. This slows down write-out a LOT.
+_ = dub(result, """This is the first paragraph.
+Wee.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+This is the 2nd paragraph.
+Wee.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+             """)
+
+#result.write_videofile("output.mp4", codec='libx264', fps=24)
+print("a" * 10 + "nd write...")
+result.write_videofile("output.mp4", codec='libx264', preset='ultrafast', fps=12, bitrate='500k', audio_bitrate='50k', threads=4, write_logfile=False)
