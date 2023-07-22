@@ -4,6 +4,25 @@ from PIL import Image
 import numpy as np
 import pysrt
 
+DEBUG = True
+
+"""
+#result.write_videofile("output.mp4", codec='libx264', fps=24)
+print("a" * 10 + "nd write...")
+result.write_videofile("output.mp4", codec='libx264', preset='ultrafast', fps=FPS, bitrate='500k', audio_bitrate='50k', threads=11, write_logfile=False)
+
+"""
+
+WRITEOUT_KWARGS = dict(codec='libx264', threads=11, write_logfile=False)
+
+if DEBUG:
+    FPS = 12
+    WRITEOUT_KWARGS.update(dict(
+        preset='ultrafast', fps=FPS, bitrate='500k', audio_bitrate='50k'))
+else:
+    FPS = 24
+    WRITEOUT_KWARGS.update(dict(fps=FPS))
+
 RESOLUTION = (1920, 1080)
 IMAGE_FILE_EXTENSIONS = ["png", "jpg"]
 AUDIO_FILE_EXTENSIONS = ["mp3", "wav"]
@@ -136,9 +155,10 @@ def dub(clip, text):
         return TextClip(txt, fontsize=24, color='white')
     subtitles = CompositeVideoClip(
         [clip] + [sub_gen(sub.text)
+                  .set_fps(FPS)
                   .set_pos(('center', 'bottom'))
                   .set_start(sub.start.ordinal)
-                  .set_duration((sub.end - sub.start).ordinal) for sub in srt_subs])
+                  .set_duration((sub.end - sub.start).ordinal / 1000) for sub in srt_subs])
     return subtitles
 
 clips = set_globals_from_media("./media")
@@ -147,10 +167,10 @@ globals().update(clips)
 
 # New variables magically spawned by above.
 walk0 = walk_20230714.subclip(20, 80)
-flowers0 = flowers_20230714.set_duration(10).set_fps(24)
+flowers0 = flowers_20230714.set_duration(10).set_fps(FPS)
 walk1 = walk_20230716.subclip(1, 13)
 walk2 = walk_20230718.subclip(3, 14)
-whale0 = walk_20230719_0.set_duration(10).set_fps(24)
+whale0 = walk_20230719_0.set_duration(10).set_fps(FPS)
 walk3_1 = walk_20230720_1.subclip(2, 26)
 
 walk0 = caption(walk0, text="2023-07-14: We're walking here!")
@@ -170,7 +190,7 @@ result = concatenate_videoclips([
 ])
 
 # Output not used for now. This slows down write-out a LOT.
-_ = dub(result, """This is the first paragraph.
+result = dub(result, """This is the first paragraph.
 Wee.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
@@ -180,6 +200,4 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
              """)
 
-#result.write_videofile("output.mp4", codec='libx264', fps=24)
-print("a" * 10 + "nd write...")
-result.write_videofile("output.mp4", codec='libx264', preset='ultrafast', fps=12, bitrate='500k', audio_bitrate='50k', threads=4, write_logfile=False)
+result.write_videofile("output.mp4", **WRITEOUT_KWARGS)
