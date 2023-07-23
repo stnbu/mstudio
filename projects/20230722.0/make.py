@@ -29,8 +29,9 @@ result = concatenate_videoclips([
     walk3_1,
 ])
 
+""" 
 # Output not used for now. This slows down write-out a LOT.
-result = dub(result, """This is the first paragraph.
+result = dub(result, "x"This is the first paragraph.
 Wee.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
@@ -38,6 +39,8 @@ This is the 2nd paragraph.
 Wee.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-             """)
+             "x")
 
+"""
+ 
 result.write_videofile("output.mp4", **WRITEOUT_KWARGS)
