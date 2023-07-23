@@ -5,6 +5,14 @@ clips = set_globals_from_media("./media")
 # MAGIC: 🪄
 globals().update(clips)
 
+# CURRENT PROBS:
+#
+# - flowers have no caption
+# - whale caption overflows sides
+# - needs other media
+# - needs mouth sounds, folded as audio
+# - needs hardsubs created with our tool
+
 # New variables magically spawned by above.
 walk0 = walk_20230714.subclip(20, 80)
 flowers0 = flowers_20230714.set_duration(10).set_fps(FPS)
