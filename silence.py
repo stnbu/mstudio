@@ -1,7 +1,8 @@
-import subprocess
-import shlex
 import re
-from moviepy.editor import AudioFileClip, AudioClip, concatenate_audioclips
+import shlex
+import subprocess
+
+from moviepy.editor import AudioClip, AudioFileClip, concatenate_audioclips
 
 
 def get_silent_interval(duration):

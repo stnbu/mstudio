@@ -1,10 +1,11 @@
-import sys
 import io
 import os
-from pygments import highlight
-from pygments.lexers import PythonLexer
-from pygments.formatters import ImageFormatter
+import sys
+
 from PIL import Image
+from pygments import highlight
+from pygments.formatters import ImageFormatter
+from pygments.lexers import PythonLexer
 
 
 def generate_images_from_code(file_path, columns):

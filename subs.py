@@ -1,8 +1,8 @@
-from moviepy.editor import *
 import pysrt
-from . import FPS
+from moviepy.editor import *
 
-from mstudio import *
+from . import *
+
 
 def dub(clip, text):
     srt_subs = generate_srt_from_text(text)

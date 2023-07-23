@@ -1,16 +1,12 @@
 import re
 from glob import glob
-import numpy as np
 
+import numpy as np
+from moviepy.editor import *
+from moviepy.editor import (AudioFileClip, CompositeAudioClip, ImageClip,
+                            concatenate_videoclips)
 # import PIL
 from PIL import Image
-from moviepy.editor import *
-from moviepy.editor import (
-    concatenate_videoclips,
-    ImageClip,
-    AudioFileClip,
-    CompositeAudioClip,
-)
 
 
 def make_images_clip(images_dir, length=0):

@@ -1,9 +1,5 @@
-from moviepy.editor import (
-    TextClip,
-    concatenate_videoclips,
-    CompositeVideoClip,
-    ColorClip,
-)
+from moviepy.editor import (ColorClip, CompositeVideoClip, TextClip,
+                            concatenate_videoclips)
 from pycaption import SRTReader
 
 

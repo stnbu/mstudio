@@ -1,8 +1,9 @@
-from moviepy.editor import *
-from scipy.io.wavfile import write
-import numpy as np
 import os
+
+import numpy as np
+from moviepy.editor import *
 from PIL import Image
+from scipy.io.wavfile import write
 
 
 # Function to generate a tone

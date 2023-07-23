@@ -1,5 +1,6 @@
-import os
 import multiprocessing
+import os
+
 import numpy as np
 from moviepy.editor import *
 
