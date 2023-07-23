@@ -1,14 +1,9 @@
-import sys, os, keyword
+import os, keyword
 from moviepy.editor import *
-from PIL import Image
 import numpy as np
-import pysrt
 
-from subs import WPS
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from subs import dub
-
+from mstudio import *
+from mstudio.subs import *
 
 RESOLUTION = (1920, 1080)
 IMAGE_FILE_EXTENSIONS = ["png", "jpg"]
@@ -30,8 +25,6 @@ RESOLUTION = (1920, 1080)
 IMAGE_FILE_EXTENSIONS = ["png", "jpg"]
 AUDIO_FILE_EXTENSIONS = ["mp3", "wav"]
 VIDEO_FILE_EXTENSIONS = ["mov", "m4a"]
-
-
 
 def is_python_name(name):
     if keyword.iskeyword(name):

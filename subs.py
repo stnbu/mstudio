@@ -1,6 +1,6 @@
-from moviepy.editor import CompositeVideoClip, TextClip
-from projects.20230722.0.make import FPS, generate_srt_from_text
-
+from moviepy.editor import *
+import pysrt
+from . import FPS
 
 def dub(clip, text):
     srt_subs = generate_srt_from_text(text)
