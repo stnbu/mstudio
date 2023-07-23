@@ -14,10 +14,6 @@ def dub(clip, text):
                   .set_duration((sub.end - sub.start).ordinal / 1000) for sub in srt_subs])
     return subtitles
 
-WPS = 3.2
-START = 1.5
-PADDING = 0.5
-
 def parse_paragraphs(text):
     paragraphs = text.split("\n\n")
     subtitles = []
@@ -36,17 +32,17 @@ def parse_paragraphs(text):
 
 def generate_srt_from_text(text):
     paragraphs = parse_paragraphs(text)
-    current_time = START
+    current_time = SUB_START_DELAY
     srt_subs = pysrt.SubRipFile()
     for p, instr in paragraphs:
         if "sub_start_time" in instr:
             current_time = instr["sub_start_time"]
-        duration = len(p.split()) / WPS
+        duration = len(p.split()) / SUB_WPS
         sub = pysrt.SubRipItem(
             start=int(current_time * 1000),
             end=int((current_time + duration) * 1000),
             text=p
         )
         srt_subs.append(sub)
-        current_time = current_time + duration + PADDING
+        current_time = current_time + duration + SUB_PADDING
     return srt_subs
