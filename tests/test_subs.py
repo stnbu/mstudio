@@ -1,5 +1,6 @@
 from moviepy.editor import *
 from mstudio import *
+from mstudio.subs import *
 import unittest
 
 class TestSubsMethods(unittest.TestCase):
@@ -29,3 +30,31 @@ class TestSubsMethods(unittest.TestCase):
         # Lower-right corner
         self.assertEqual(frame[149, 149].tolist(), [255, 255, 255])
         
+    def test_calculate_max_resolution(self):
+        clip1 = ColorClip((100, 200), color=(255, 255, 255)).set_duration(0.1)
+        clip2 = ColorClip((300, 100), color=(255, 255, 255)).set_duration(0.1)
+        
+        max_res = calculate_max_resolution([clip1, clip2])
+        self.assertEqual(max_res, (300, 200))
+
+    def test_caption(self):
+        clip = ColorClip((100, 100), color=(255, 255, 255)).set_duration(0.1)
+        captioned = caption(clip, text="Test")
+        
+        # Ensure the captioned clip's duration matches the original
+        self.assertEqual(captioned.duration, 0.1)
+
+    def test_generate_srt_from_text(self):
+        text = "This is a test.\n\n#sub_start_time=5.0\nThis is another test."
+        subs = generate_srt_from_text(text)
+        
+        # Expect two subtitle entries
+        self.assertEqual(len(subs), 2)
+        
+        # First entry should start at SUB_START_DELAY (1.5s) and have "This is a test."
+        self.assertEqual(subs[0].text, "This is a test.")
+        self.assertEqual(subs[0].start.ordinal, 1500)  # 1.5 * 1000
+
+        # Second entry should start at 5.0s and have "This is another test."
+        self.assertEqual(subs[1].text, "This is another test.")
+        self.assertEqual(subs[1].start.ordinal, 5000)  # 5.0 * 1000
