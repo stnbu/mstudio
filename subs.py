@@ -2,17 +2,27 @@ from moviepy.editor import *
 import pysrt
 from . import FPS
 
+from mstudio import *
+
 def dub(clip, text):
     srt_subs = generate_srt_from_text(text)
+
     def sub_gen(txt):
-        return TextClip(txt, fontsize=24, color='white')
+        return TextClip(txt, fontsize=24, color="white")
+
     subtitles = CompositeVideoClip(
-        [clip] + [sub_gen(sub.text)
-                  .set_fps(FPS)
-                  .set_pos(('center', 'bottom'))
-                  .set_start(sub.start.ordinal)
-                  .set_duration((sub.end - sub.start).ordinal / 1000) for sub in srt_subs])
+        [clip]
+        + [
+            sub_gen(sub.text)
+            .set_fps(FPS)
+            .set_pos(("center", "bottom"))
+            .set_start(sub.start.ordinal)
+            .set_duration((sub.end - sub.start).ordinal / 1000)
+            for sub in srt_subs
+        ]
+    )
     return subtitles
+
 
 def parse_paragraphs(text):
     paragraphs = text.split("\n\n")
@@ -30,6 +40,7 @@ def parse_paragraphs(text):
         instructions = {}
     return subtitles
 
+
 def generate_srt_from_text(text):
     paragraphs = parse_paragraphs(text)
     current_time = SUB_START_DELAY
@@ -41,7 +52,7 @@ def generate_srt_from_text(text):
         sub = pysrt.SubRipItem(
             start=int(current_time * 1000),
             end=int((current_time + duration) * 1000),
-            text=p
+            text=p,
         )
         srt_subs.append(sub)
         current_time = current_time + duration + SUB_PADDING

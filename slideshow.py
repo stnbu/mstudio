@@ -1,10 +1,16 @@
 import re
 from glob import glob
 import numpy as np
-#import PIL
+
+# import PIL
 from PIL import Image
 from moviepy.editor import *
-from moviepy.editor import concatenate_videoclips, ImageClip, AudioFileClip, CompositeAudioClip
+from moviepy.editor import (
+    concatenate_videoclips,
+    ImageClip,
+    AudioFileClip,
+    CompositeAudioClip,
+)
 
 
 def make_images_clip(images_dir, length=0):
@@ -15,7 +21,7 @@ def make_images_clip(images_dir, length=0):
 
     # Extract timestamps from image file names
     for file_name in image_files:
-        timestamp = float(os.path.basename(file_name).split('.')[0])
+        timestamp = float(os.path.basename(file_name).split(".")[0])
         timestamps.append(timestamp)
 
     # Determine the total clip length
@@ -37,11 +43,13 @@ def make_images_clip(images_dir, length=0):
     img = Image.open(image_files[-1])
     img.thumbnail((800, 600))
     last_image = ImageClip(np.array(img))
-    video = CompositeVideoClip([video, last_image.set_start(timestamps[-1])]).set_duration(total_length)
+    video = CompositeVideoClip(
+        [video, last_image.set_start(timestamps[-1])]
+    ).set_duration(total_length)
     return video
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     video = make_images_clip("images_dir")
     video.set_duration(2000)
-    video.write_videofile("slide.mp4", codec='libx264', fps=24)
+    video.write_videofile("slide.mp4", codec="libx264", fps=24)
