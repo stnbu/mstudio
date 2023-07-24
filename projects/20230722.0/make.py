@@ -62,18 +62,30 @@ result = concatenate_videoclips(
     ]
 )
 
-""" 
-# Output not used for now. This slows down write-out a LOT.
-result = dub(result, "x"This is the first paragraph.
-Wee.
+text = """This is the first paragraph.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 This is the 2nd paragraph.
 Wee.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-             "x")
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 """
+
+paragraphs = text.strip().split("\n\n")
+
+subs_clip = hardsub(paragraphs)
+parent_width, parent_height = result.size
+subs_width, subs_height = subs_clip.size
+subs_x = (parent_width - subs_width) / 2
+subs_y = parent_height - subs_height - 5
+subs_clip = subs_clip.set_position((subs_x, subs_y))
+
+result = CompositeVideoClip([result, subs_clip])
 
 # Good to know!... Hmmm
 #  mpv --geometry=1200x900 --keep-open --really-quiet output.mp4
