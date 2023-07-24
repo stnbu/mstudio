@@ -26,24 +26,39 @@ walk0 = CompositeVideoClip(
     [walk0, caps.set_pos(("center", 55)).set_duration(walk0.duration)]
 )
 
-# walk1 = caption(walk1, text="2023-07-16: We're walking here!")
-# walk2 = caption(walk2, text="2023-07-18: We're walking here!")
-# whale0 = caption(whale0, text="2023-07-19: A whale that someone has butchered.")
-# walk3_1 = caption(walk3_1, text="2023-07-20: We're walking here!")
-
-caps = caption("2023-07-19: DYC")
+caps = caption("2023-07-14: DYC")
 flowers0 = CompositeVideoClip(
     [flowers0, caps.set_pos(("center", 55)).set_duration(flowers0.duration)]
+)
+
+caps = caption("2023-07-16: We're walking here!")
+walk1 = CompositeVideoClip(
+    [walk1, caps.set_pos(("center", 55)).set_duration(walk1.duration)]
+)
+
+caps = caption("2023-07-18: We're walking here!")
+walk2 = CompositeVideoClip(
+    [walk2, caps.set_pos(("center", 55)).set_duration(walk2.duration)]
+)
+
+caps = caption("2023-07-19: Garbage whale.")
+whale0 = CompositeVideoClip(
+    [whale0, caps.set_pos(("center", 55)).set_duration(whale0.duration)]
+)
+
+caps = caption("2023-07-20: We're walking here!")
+walk3_1 = CompositeVideoClip(
+    [walk3_1, caps.set_pos(("center", 55)).set_duration(walk3_1.duration)]
 )
 
 result = concatenate_videoclips(
     [
         walk0,
         flowers0,
-        # walk1,
-        # walk2,
-        # whale0,
-        # walk3_1,
+        walk1,
+        walk2,
+        whale0,
+        walk3_1,
     ]
 )
 
