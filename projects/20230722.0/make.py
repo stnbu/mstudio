@@ -7,8 +7,8 @@ globals().update(clips)
 
 # CURRENT PROBS:
 #
-# - flowers have no caption
-# - whale caption overflows sides
+# ✔✔ flowers have no caption
+# ✔✔ whale caption overflows sides
 # - needs other media
 # - needs mouth sounds, folded as audio
 # - needs hardsubs created with our tool
