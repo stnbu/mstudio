@@ -4,56 +4,37 @@ from moviepy.editor import *
 from . import *
 
 
-def dub(clip, text):
-    srt_subs = generate_srt_from_text(text)
-
-    def sub_gen(txt):
+def hardsub(text):
+    def get_clip(txt):
         return TextClip(txt, fontsize=24, color="white")
 
-    subtitles = CompositeVideoClip(
-        [clip]
-        + [
-            sub_gen(sub.text)
-            .set_fps(FPS)
-            .set_pos(("center", "bottom"))
-            .set_start(sub.start.ordinal)
-            .set_duration((sub.end - sub.start).ordinal / 1000)
-            for sub in srt_subs
-        ]
-    )
-    return subtitles
+    clips = []
+    for sub in srt_from_paragraphs(text):
+        duration = sub.duration.ordinal / 1000
+        start = sub.start.ordinal / 1000
+        print(">>>>>>>> start:", start, "duration:", duration)
+        clip = get_clip(sub.text).set_start(start).set_fps(FPS).set_duration(duration)
+        clips.append(clip)
+    result = CompositeVideoClip(clips)
+    print(">>>>>>>> result.duration:", result.duration)
+    return result
 
 
-def parse_paragraphs(text):
-    paragraphs = text.split("\n\n")
-    subtitles = []
-    instructions = {}
-    for p in paragraphs:
-        lines = p.split("\n")
-        if lines[0].startswith("#"):
-            instruction, value = lines[0][1:].split("=", 1)
-            instructions[instruction.strip()] = float(value)
-            subtitle_text = "\n".join(lines[1:])
-        else:
-            subtitle_text = p
-        subtitles.append((subtitle_text, instructions))
-        instructions = {}
-    return subtitles
-
-
-def generate_srt_from_text(text):
-    paragraphs = parse_paragraphs(text)
-    current_time = SUB_START_DELAY
-    srt_subs = pysrt.SubRipFile()
-    for p, instr in paragraphs:
-        if "sub_start_time" in instr:
-            current_time = instr["sub_start_time"]
-        duration = len(p.split()) / SUB_WPS
+def srt_from_paragraphs(paragraphs):
+    current_ms = SUB_START_DELAY * 1000
+    subs = pysrt.SubRipFile()
+    for paragraph in paragraphs:
+        duration = len(paragraph.split()) / SUB_WPS * 1000
+        start = int(current_ms)
+        end = int(start + duration)
+        # print(">>>>>>>> current_ms, duration", current_ms, duration)
+        # print(">>>>>>>> start, end", start, end)
         sub = pysrt.SubRipItem(
-            start=int(current_time * 1000),
-            end=int((current_time + duration) * 1000),
-            text=p,
+            start=start,
+            end=end,
+            text=paragraph,
         )
-        srt_subs.append(sub)
-        current_time = current_time + duration + SUB_PADDING
-    return srt_subs
+        subs.append(sub)
+        current_ms = end
+    # print(str(subs))
+    return subs
