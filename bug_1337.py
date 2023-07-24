@@ -21,19 +21,19 @@ def caption(clip, duration=None, text=None):
     return CompositeVideoClip([clip, txt_clip])
 
 
-walk0 = VideoFileClip("vid.mov")
+# walk0 = VideoFileClip("vid.mov")
 flowers0 = ImageClip("flower.jpg").set_duration(1.5).set_fps(24)
-whale0 = ImageClip("whale.jpg").set_duration(1.5).set_fps(24)
+# whale0 = ImageClip("whale.jpg").set_duration(1.5).set_fps(24)
 
-walk0 = caption(walk0, text="2023-07-14: We're walking here!")
+# walk0 = caption(walk0, text="2023-07-14: We're walking here!")
 flower0 = caption(flowers0, text="2023-07-19: A whale that someone has butchered.")
-whale0 = caption(whale0, text="2023-07-19: A whale that someone has butchered.")
+# whale0 = caption(whale0, text="2023-07-19: A whale that someone has butchered.")
 
 result = concatenate_videoclips(
     [
-        walk0,
+        # walk0,
         flowers0,
-        whale0,
+        # whale0,
     ]
 )
 result.write_videofile(
