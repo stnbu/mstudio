@@ -83,25 +83,15 @@ def get_max_scale(resolution, target):
 #    return (np.sin(2 * np.pi * 3 * t) + 1) / 2  # Sine wave, 3Hz, ranged [0, 1]
 
 
-def caption(clip, duration=None, text=None):
-    if not clip.duration:
-        clip = clip.set_duration(duration)
-    if not text:
-        return clip
-    txt_clip = (
-        TextClip(
-            text,
-            fontsize=105,
-            color="green",
-            font="Arial-Rounded-MT-Bold",
-            stroke_width=5,
-            stroke_color="red",
-        )
-        .set_pos(("center", 55))
-        .set_duration(clip.duration)
+def caption(text):
+    return TextClip(
+        text,
+        fontsize=105,
+        color="green",
+        font="Arial-Rounded-MT-Bold",
+        stroke_width=5,
+        stroke_color="red",
     )
-    # this part broke: .fx(vfx.colorx, sine_opacity))
-    return CompositeVideoClip([clip, txt_clip])
 
 
 def subdivide(clip):
