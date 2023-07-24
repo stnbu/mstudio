@@ -5,8 +5,10 @@
 *.m4a
 *.wav
 *.mov
+*.jpg
 
 /screenshots
 /projects
 __pycache__/
 mstudio.egg-info/
+/.vscode/
