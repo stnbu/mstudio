@@ -1,5 +1,13 @@
 from mstudio import *
 from mstudio.subs import *
+import textwrap
+
+
+def read_file_contents(path):
+    with open(path, "r") as file:
+        file_contents = file.read()
+    return file_contents
+
 
 clips = set_globals_from_media("./media")
 # MAGIC: 🪄
@@ -62,21 +70,9 @@ result = concatenate_videoclips(
     ]
 )
 
-text = """This is the first paragraph.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
-This is the 2nd paragraph.
-Wee.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-"""
-
+text = read_file_contents("apology.txt")
 paragraphs = text.strip().split("\n\n")
+paragraphs = [textwrap.fill(p, width=50) for p in paragraphs]
 
 subs_clip = hardsub(paragraphs)
 parent_width, parent_height = result.size
