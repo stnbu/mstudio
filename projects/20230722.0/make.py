@@ -21,16 +21,24 @@ walk2 = walk_20230718.subclip(3, 14)
 whale0 = walk_20230719_0.set_duration(10).set_fps(FPS)
 walk3_1 = walk_20230720_1.subclip(2, 26)
 
-# walk0 = caption(walk0, text="2023-07-14: We're walking here!")
-flower0 = caption(flowers0, text="2023-07-19: A whale that someone has butchered.")
+caps = caption("2023-07-14: We're walking here!")
+walk0 = CompositeVideoClip(
+    [walk0, caps.set_pos(("center", 55)).set_duration(walk0.duration)]
+)
+
 # walk1 = caption(walk1, text="2023-07-16: We're walking here!")
 # walk2 = caption(walk2, text="2023-07-18: We're walking here!")
 # whale0 = caption(whale0, text="2023-07-19: A whale that someone has butchered.")
 # walk3_1 = caption(walk3_1, text="2023-07-20: We're walking here!")
 
+caps = caption("2023-07-19: DYC")
+flowers0 = CompositeVideoClip(
+    [flowers0, caps.set_pos(("center", 55)).set_duration(flowers0.duration)]
+)
+
 result = concatenate_videoclips(
     [
-        # walk0,
+        walk0,
         flowers0,
         # walk1,
         # walk2,
