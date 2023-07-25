@@ -1,12 +1,18 @@
 from mstudio import *
 from mstudio.subs import *
 import textwrap
+import hashlib
 
 
 def read_file_contents(path):
     with open(path, "r") as file:
         file_contents = file.read()
     return file_contents
+
+
+# foreshadowing
+def compute_sha256(text):
+    return hashlib.sha256(text.encode()).hexdigest()
 
 
 clips = set_globals_from_media("./media")
