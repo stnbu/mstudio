@@ -8,13 +8,19 @@ def hardsub(sub_rip):
     def get_clip(txt):
         return TextClip(txt, fontsize=48, color="white")
 
+    max_resolution = (0, 0)
     clips = []
     for sub in srt_from_paragraphs(sub_rip):
         duration = sub.duration.ordinal / 1000
         start = sub.start.ordinal / 1000
         clip = get_clip(sub.text).set_start(start).set_fps(FPS).set_duration(duration)
+        max_x, max_y = max_resolution
+        clip_x, clip_y = clip.size
+        max_x = clip_x > max_x and clip_x or max_x
+        max_y = clip_y > max_y and clip_y or max_y
+        max_resolution = (max_x, max_y)
         clips.append(clip)
-    result = CompositeVideoClip(clips)
+    result = CompositeVideoClip(clips, size=max_resolution)
     return result
 
 
@@ -32,5 +38,4 @@ def srt_from_paragraphs(paragraphs):
         )
         subs.append(sub)
         current_ms = end
-    # subs.save("debug.srt", encoding="utf-8")
     return subs
