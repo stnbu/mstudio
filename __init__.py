@@ -4,9 +4,9 @@ import os
 import numpy as np
 from moviepy.editor import *
 
-SUB_WPS = 3.2
+SUB_WPS = 2.8
 SUB_START_DELAY = 1.5
-SUB_PADDING = 0.5
+SUB_PADDING = 0.8
 RESOLUTION = (1920, 1080)
 IMAGE_FILE_EXTENSIONS = ["png", "jpg"]
 AUDIO_FILE_EXTENSIONS = ["mp3", "wav"]

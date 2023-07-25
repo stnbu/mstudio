@@ -6,11 +6,17 @@ from . import *
 
 def hardsub(sub_rip):
     def get_clip(txt):
-        return TextClip(txt, fontsize=48, color="white")
+        return TextClip(
+            txt,
+            fontsize=65,
+            color="white",
+            stroke_width=3,
+            stroke_color="black",
+        )
 
     max_resolution = (0, 0)
     clips = []
-    for sub in srt_from_paragraphs(sub_rip):
+    for sub in sub_rip:
         duration = sub.duration.ordinal / 1000
         start = sub.start.ordinal / 1000
         clip = get_clip(sub.text).set_start(start).set_fps(FPS).set_duration(duration)

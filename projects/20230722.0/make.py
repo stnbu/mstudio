@@ -11,8 +11,8 @@ def read_file_contents(path):
 
 
 # foreshadowing
-def compute_sha256(text):
-    return hashlib.sha256(text.encode()).hexdigest()
+def get_text_id(text):
+    return hashlib.sha256(text.encode()).hexdigest()[:10]
 
 
 clips = set_globals_from_media("./media")
@@ -27,7 +27,15 @@ globals().update(clips)
 # - needs mouth sounds, folded as audio
 # - needs hardsubs created with our tool
 
+# First create preamble hardsubs. It gets its own static graphic.
+text = read_file_contents("apology.txt")
+paragraphs = text.strip().split("\n\n")
+paragraphs = [textwrap.fill(p, width=43) for p in paragraphs]
+sub_rip = srt_from_paragraphs(paragraphs)
+subs_clip = hardsub(sub_rip)
+
 # New variables magically spawned by above.
+tangles = tangles.set_duration(subs_clip.duration + 2).set_fps(FPS)
 walk0 = walk_20230714.subclip(20, 80)
 flowers0 = flowers_20230714.set_duration(10).set_fps(FPS)
 walk1 = walk_20230716.subclip(1, 13)
@@ -76,17 +84,11 @@ result = concatenate_videoclips(
     ]
 )
 
-text = read_file_contents("apology.txt")
-paragraphs = text.strip().split("\n\n")
-paragraphs = [textwrap.fill(p, width=50) for p in paragraphs]
-
-subs_clip = hardsub(paragraphs)
 parent_width, parent_height = result.size
 subs_width, subs_height = subs_clip.size
 subs_x = (parent_width - subs_width) / 2
 subs_y = parent_height - subs_height - 5
 subs_clip = subs_clip.set_position((subs_x, subs_y))
-
 result = CompositeVideoClip([result, subs_clip])
 
 # Good to know!... Hmmm
