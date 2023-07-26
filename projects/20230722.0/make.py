@@ -1,7 +1,8 @@
+import hashlib
+import textwrap
+
 from mstudio import *
 from mstudio.subs import *
-import textwrap
-import hashlib
 
 
 def read_file_contents(path):

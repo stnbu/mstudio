@@ -1,7 +1,9 @@
+import unittest
+
 from moviepy.editor import *
+
 from mstudio import *
 from mstudio.subs import *
-import unittest
 
 
 class TestSubsMethods(unittest.TestCase):
