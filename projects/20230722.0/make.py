@@ -15,6 +15,25 @@ def get_text_id(text):
     return hashlib.sha256(text.encode()).hexdigest()[:10]
 
 
+def fold_audio_clip(clip, fold_length):
+    duration = clip.duration
+    if duration <= fold_length:
+        return clip
+    fold_count = int(duration // fold_length)
+    fold_clips = []
+    for i in range(fold_count):
+        start = i * fold_length
+        end = (i + 1) * fold_length
+        fold_clips.append(clip.subclip(start, end))
+    return CompositeAudioClip(fold_clips)
+
+
+def lengthen_sub(sub_rip, index, seconds):
+    sub_rip[index].end.seconds += seconds
+    for i in range(index + 1, len(sub_rip)):
+        sub_rip[i].shift(seconds=seconds)
+
+
 clips = set_globals_from_media("./media")
 # MAGIC: 🪄
 globals().update(clips)
@@ -32,6 +51,20 @@ text = read_file_contents("apology.txt")
 paragraphs = text.strip().split("\n\n")
 paragraphs = [textwrap.fill(p, width=43) for p in paragraphs]
 sub_rip = srt_from_paragraphs(paragraphs)
+
+# "Oh hi there."
+lengthen_sub(sub_rip, 0, 3)
+# "Anything!"
+lengthen_sub(sub_rip, 4, 3)
+# "And therefor: long time/no video."
+lengthen_sub(sub_rip, 7, 3)
+# "So the the quality is extra crap."
+lengthen_sub(sub_rip, 9, 3)
+# "I listened to it and it's gross!"
+lengthen_sub(sub_rip, 13, 4)
+# "Enjoybers."
+lengthen_sub(sub_rip, 18, 5)
+
 subs_clip = hardsub(sub_rip)
 
 # New variables magically spawned by above.
@@ -92,6 +125,7 @@ subs_y = parent_height - subs_height - 5
 subs_clip = subs_clip.set_position((subs_x, subs_y))
 result = CompositeVideoClip([result, subs_clip])
 
-# Good to know!... Hmmm
-#  mpv --geometry=1200x900 --keep-open --really-quiet output.mp4
+audio = fold_audio_clip(mouth_noises, result.duration)
+result.set_audio(audio)
+
 result.write_videofile("output.mp4", **WRITEOUT_KWARGS)
