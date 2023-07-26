@@ -6,12 +6,13 @@ from . import *
 
 def hardsub(sub_rip):
     def get_clip(txt):
+        color, stroke_color = FONT_COLORS_NM_EARTH
         return TextClip(
             txt,
             fontsize=65,
-            color="white",
+            color=color,
             stroke_width=3,
-            stroke_color="black",
+            stroke_color=stroke_color,
         )
 
     max_resolution = (0, 0)

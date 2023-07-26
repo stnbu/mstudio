@@ -75,6 +75,7 @@ walk3_1 = CompositeVideoClip(
 
 result = concatenate_videoclips(
     [
+        tangles,
         walk0,
         flowers0,
         walk1,

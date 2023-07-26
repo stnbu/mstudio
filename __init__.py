@@ -15,7 +15,14 @@ FPS = 24
 WRITEOUT_KWARGS = dict(
     codec="libx264", threads=multiprocessing.cpu_count(), write_logfile=False, fps=FPS
 )
-
+FONT_COLORS_NM_SKY = [
+    "#CC9900",  # (204, 153, 0),  # "Golden Mirage"
+    "#191970",  # (25, 25, 112),  # "Twilight Horizon".
+]
+FONT_COLORS_NM_EARTH = [
+    "#CC99CC",  # (204, 153, 204),  # "Desert Lavender"
+    "#323232",  # (50, 50, 50),  # "Charcoal Veil"
+]
 DEBUG = os.getenv("DEBUG", False)
 if DEBUG:
     FPS = 12
@@ -84,13 +91,14 @@ def get_max_scale(resolution, target):
 
 
 def caption(text):
+    color, stroke_color = FONT_COLORS_NM_SKY
     return TextClip(
         text,
         fontsize=105,
-        color="green",
+        color=color,
         font="Arial-Rounded-MT-Bold",
         stroke_width=5,
-        stroke_color="red",
+        stroke_color=stroke_color,
     )
 
 
