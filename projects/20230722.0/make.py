@@ -25,13 +25,19 @@ def fold_audio_clip(clip, fold_length):
         start = i * fold_length
         end = (i + 1) * fold_length
         fold_clips.append(clip.subclip(start, end))
-    return CompositeAudioClip(fold_clips)
+    return CompositeAudioClip(fold_clips).set_fps(44100)
 
 
 def lengthen_sub(sub_rip, index, seconds):
     sub_rip[index].end.seconds += seconds
     for i in range(index + 1, len(sub_rip)):
         sub_rip[i].shift(seconds=seconds)
+
+
+def scrub_clip(clip):
+    clip.reader.infos.clear()
+    clip.reader.metadata.clear()
+    return clip
 
 
 clips = set_globals_from_media("./media")
@@ -75,6 +81,7 @@ walk1 = walk_20230716.subclip(1, 13)
 walk2 = walk_20230718.subclip(3, 14)
 whale0 = walk_20230719_0.set_duration(10).set_fps(FPS)
 walk3_1 = walk_20230720_1.subclip(2, 26)
+walk4 = walk_20230722.subclip(1, 138)
 
 caps = caption("2023-07-14: We're walking here!")
 walk0 = CompositeVideoClip(
@@ -106,6 +113,11 @@ walk3_1 = CompositeVideoClip(
     [walk3_1, caps.set_pos(("center", 55)).set_duration(walk3_1.duration)]
 )
 
+caps = caption("2023-07-22: We're walking here!")
+walk4 = CompositeVideoClip(
+    [walk4, caps.set_pos(("center", 55)).set_duration(walk4.duration)]
+)
+
 result = concatenate_videoclips(
     [
         tangles,
@@ -115,6 +127,7 @@ result = concatenate_videoclips(
         walk2,
         whale0,
         walk3_1,
+        walk4,
     ]
 )
 
@@ -126,6 +139,6 @@ subs_clip = subs_clip.set_position((subs_x, subs_y))
 result = CompositeVideoClip([result, subs_clip])
 
 audio = fold_audio_clip(mouth_noises, result.duration)
-result.set_audio(audio)
-
+result = result.set_audio(audio)
+result = scrub_clip(result)
 result.write_videofile("output.mp4", **WRITEOUT_KWARGS)

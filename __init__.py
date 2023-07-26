@@ -13,7 +13,11 @@ AUDIO_FILE_EXTENSIONS = ["mp3", "wav"]
 VIDEO_FILE_EXTENSIONS = ["mov", "m4a"]
 FPS = 24
 WRITEOUT_KWARGS = dict(
-    codec="libx264", threads=multiprocessing.cpu_count(), write_logfile=False, fps=FPS
+    codec="libx264",
+    threads=multiprocessing.cpu_count(),
+    write_logfile=False,
+    fps=FPS,
+    remove_metadata=True,
 )
 FONT_COLORS_NM_SKY = [
     "#CC9900",  # (204, 153, 0),  # "Golden Mirage"
