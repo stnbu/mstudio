@@ -17,7 +17,6 @@ WRITEOUT_KWARGS = dict(
     threads=multiprocessing.cpu_count(),
     write_logfile=False,
     fps=FPS,
-    remove_metadata=True,
 )
 FONT_COLORS_NM_SKY = [
     "#CC9900",  # (204, 153, 0),  # "Golden Mirage"

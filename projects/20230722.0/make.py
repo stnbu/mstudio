@@ -35,12 +35,6 @@ def lengthen_sub(sub_rip, index, seconds):
         sub_rip[i].shift(seconds=seconds)
 
 
-def scrub_clip(clip):
-    clip.reader.infos.clear()
-    clip.reader.metadata.clear()
-    return clip
-
-
 clips = set_globals_from_media("./media")
 # MAGIC: 🪄
 globals().update(clips)
@@ -141,5 +135,4 @@ result = CompositeVideoClip([result, subs_clip])
 
 audio = fold_audio_clip(mouth_noises, result.duration)
 result = result.set_audio(audio)
-result = scrub_clip(result)
 result.write_videofile("output.mp4", **WRITEOUT_KWARGS)
